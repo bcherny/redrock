@@ -22,11 +22,17 @@ type Events = {
   SHOULD_CLOSE_MODAL: boolean
 }
 
+const store: { [id: number]: boolean } = {}
+
 class App extends ReactiveBus<Events> { }
-const app = new App
+const app = new App()
+  .reducer('SHOULD_OPEN_MODAL', ({ id, value }) => {
+    const previousValue = store[id]
+    store[id] = value
+    return previousValue
+  })
 
 app.emit('SHOULD_OPEN_MODAL', { id: 123, value: true })
-app.reducer('SHOULD_OPEN_MODAL', data => { ... })
 app.on('SHOULD_OPEN_MODAL').subscribe(_ => _.value)
 ```
 
