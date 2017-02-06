@@ -6,6 +6,23 @@
 
 > Better, Type Safe Redux.
 
+## Highlights
+
+- 100% type-safe:
+  - Statically guarantees that a reducer is defined for each Action
+  - Statically guarantees that emitters are called with the correct Action data given their Action name
+  - Statically guarantees that listeners are called with the correct Action data given their Action name
+- Mental model similar to [Redux](https://github.com/reactjs/redux):
+  - With several improvements over Redux:
+    - Store is decoupled from emitter
+    - Emitters are reactive; in fact, they use [Rx](https://github.com/Reactive-Extensions/RxJS) Observables!
+    - Listeners are on specific Actions
+    - Listeners are called with both current and previous values (convenience borrowed from Angular $watch/Object.Observe)
+
+## Overview
+
+
+
 ## Installation
 
 ```sh
@@ -17,23 +34,37 @@ npm install rxm --save
 ```ts
 import { ReactiveBus } from 'rxm'
 
-type Events = {
-  SHOULD_OPEN_MODAL: boolean
-  SHOULD_CLOSE_MODAL: boolean
-}
-
+// mock store
 const store: { [id: number]: boolean } = {}
 
-class App extends ReactiveBus<Events> { }
-const app = new App()
-  .reducer('SHOULD_OPEN_MODAL', ({ id, value }) => {
+// enumerate actions
+type Actions = {
+  OPEN_MODAL: boolean
+  CLOSE_MODAL: boolean
+}
+
+// define RXS bus
+class App extends ReactiveBus<Actions> { }
+
+// create bus and register reducers
+const app = new App({
+  CLOSE_MODAL: ({ id, value }) => {
     const previousValue = store[id]
     store[id] = value
     return previousValue
-  })
+  },
+  OPEN_MODAL: ({ id, value }) => {
+    const previousValue = store[id]
+    store[id] = value
+    return previousValue
+  }
+})
 
-app.emit('SHOULD_OPEN_MODAL', { id: 123, value: true })
-app.on('SHOULD_OPEN_MODAL').subscribe(_ => _.value)
+// trigger an action
+app.emit('OPEN_MODAL', { id: 123, value: true })
+
+// listen on an action
+app.on('OPEN_MODAL').subscribe(_ => _.value)
 ```
 
 ## Tests

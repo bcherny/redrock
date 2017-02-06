@@ -35,41 +35,23 @@ export abstract class ReactiveBus<Events> {
     subscriptions: new Map
   }
 
+  constructor(reducers: Record<
+    keyof Events,
+    (data: ShouldEvent<Events[keyof Events]>) => Events[keyof Events]
+  >) {
+    for (const type in reducers) {
+      this.registerReducer(type, reducers[type])
+    }
+  }
+
   /**
    * Emit an event
    */
   emit<T extends keyof Events>(type: T, data: ShouldEvent<Events[T]>) {
-    // return this.bus.onNext(data)
     if (!this.isEventRegistered(type)) {
       throw Error(`You must define a reducer for event "${type}" before you call #emit on it.`)
     }
     this.getShould(type)!.onNext(data)
-
-    return this
-  }
-
-  /**
-   * Mutate app state in response to an event.
-   *
-   * `fn` takes the `ShouldEvent`, and returns the previous value.
-   */
-  reducer<T extends keyof Events>(type: T, fn: (data: ShouldEvent<Events[T]>) => Events[T]) {
-
-    // create observables
-    if (this.isEventRegistered(type)) {
-      throw Error(`A reducer is already defined for event "${type}". You cannot define more than 1 reducer per event type.`)
-    }
-    this.createDid(type)
-    this.createShould(type)
-
-    this.getShould(type)!.subscribe(data => {
-      const previousValue = fn(data)
-      this.getDid(type)!.onNext({
-        id: data.id,
-        previousValue,
-        value: data.value
-      })
-    })
 
     return this
   }
@@ -91,6 +73,31 @@ export abstract class ReactiveBus<Events> {
 
   ///////////////////// privates /////////////////////
 
+  /**
+   * Mutate app state in response to an event.
+   *
+   * `fn` takes the `ShouldEvent`, and returns the previous value.
+   */
+  private registerReducer<T extends keyof Events>(type: T, fn: (data: ShouldEvent<Events[T]>) => Events[T]) {
+
+    // create observables
+    if (this.isEventRegistered(type)) {
+      throw Error(`A reducer is already defined for event "${type}". You cannot define more than 1 reducer per event type.`)
+    }
+    this.createDid(type)
+    this.createShould(type)
+
+    this.getShould(type)!.subscribe(data => {
+      const previousValue = fn(data)
+      this.getDid(type)!.onNext({
+        id: data.id,
+        previousValue,
+        value: data.value
+      })
+    })
+
+    return this
+  }
 
   private createDid<T extends keyof Events>(type: T) {
     this.state.dids.set(type, new Subject<DidEvent<Events[T]>>())
@@ -125,12 +132,18 @@ type Events = {
 const store: { [id: number]: boolean } = {}
 
 class App extends ReactiveBus<Events> { }
-const app = new App()
-  .reducer('SHOULD_OPEN_MODAL', ({ id, value }) => {
+const app = new App({
+  SHOULD_CLOSE_MODAL: ({ id, value }) => {
     const previousValue = store[id]
     store[id] = value
     return previousValue
-  })
+  },
+  SHOULD_OPEN_MODAL: ({ id, value }) => {
+    const previousValue = store[id]
+    store[id] = value
+    return previousValue
+  }
+})
 
 app.emit('SHOULD_OPEN_MODAL', { id: 123, value: true })
 app.on('SHOULD_OPEN_MODAL').subscribe(_ => _.value)
