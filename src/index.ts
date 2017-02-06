@@ -1,4 +1,4 @@
-import { Disposable, Observable, Subject } from 'rx'
+import { Observable, Subject, Subscription } from 'rxjs'
 
 export interface ShouldAction<T> {
 
@@ -24,7 +24,7 @@ export interface DidAction<T> extends ShouldAction<T> {
 interface State<Actions> {
   dids: Map<keyof Actions, Observable<DidAction<any>>>
   shoulds: Map<keyof Actions, Observable<ShouldAction<any>>>
-  subscriptions: Map<keyof Actions, Disposable>
+  subscriptions: Map<keyof Actions, Subscription>
 }
 
 export abstract class Emitter<Actions> {
@@ -51,7 +51,7 @@ export abstract class Emitter<Actions> {
     if (!this.isActionRegistered(type)) {
       throw Error(`You must define a reducer for action "${type}" before you call #emit on it.`)
     }
-    this.getShould(type)!.onNext(data)
+    this.getShould(type)!.next(data)
 
     return this
   }
@@ -67,7 +67,7 @@ export abstract class Emitter<Actions> {
   }
 
   destroy() {
-    this.state.subscriptions.forEach(_ => _.dispose())
+    this.state.subscriptions.forEach(_ => _.unsubscribe())
   }
 
 
@@ -89,7 +89,7 @@ export abstract class Emitter<Actions> {
 
     this.getShould(type)!.subscribe(data => {
       const previousValue = fn(data)
-      this.getDid(type)!.onNext({
+      this.getDid(type)!.next({
         id: data.id,
         previousValue,
         value: data.value

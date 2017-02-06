@@ -1,3 +1,4 @@
+import test from 'ava'
 import { Emitter } from '../src'
 
 type Actions = {
@@ -5,9 +6,11 @@ type Actions = {
   SHOULD_CLOSE_MODAL: boolean
 }
 
-const store: { [id: number]: boolean } = {}
+const store: { [id: number]: boolean } = {
+  123: false
+}
 
-class App extends Tdux<Actions> { }
+class App extends Emitter<Actions> { }
 const app = new App({
   SHOULD_CLOSE_MODAL: ({ id, value }) => {
     const previousValue = store[id]
@@ -21,6 +24,12 @@ const app = new App({
   }
 })
 
-app.on('SHOULD_OPEN_MODAL').subscribe(_ => console.log(_.value))
-
-app.dispatch('SHOULD_OPEN_MODAL', { id: 123, value: true })
+test('it should trigger subscribers', t => {
+  t.plan(3)
+  app.on('SHOULD_OPEN_MODAL').subscribe(_ => {
+    t.is(_.id, 123)
+    t.is(_.previousValue, false)
+    t.is(_.value, true)
+  })
+  app.dispatch('SHOULD_OPEN_MODAL', { id: 123, value: true })
+})

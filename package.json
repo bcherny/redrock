@@ -6,8 +6,10 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
-    "test": "ava"
+    "lint": "tslint src",
+    "watch": "tsc w",
+    "tdd": "tsc -w & ava -w dist/test",
+    "test": "npm run build && ava dist/test"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,7 @@
   "homepage": "https://github.com/bcherny/tdux#readme",
   "devDependencies": {
     "@types/node": "^7.0.5",
+    "ava": "^0.18.1",
     "tslint": "^4.4.2",
     "typescript": "^2.1.5"
   },
