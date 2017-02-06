@@ -12,18 +12,17 @@
   - Statically guarantees that a reducer is defined for each Action
   - Statically guarantees that emitters are called with the correct Action data given their Action name
   - Statically guarantees that listeners are called with the correct Action data given their Action name
-- Mental model similar to [Redux](https://github.com/reactjs/redux):
-  - With several improvements over Redux:
-    - Store is decoupled from emitter
-    - Emitters are reactive; in fact, they use [Rx](https://github.com/Reactive-Extensions/RxJS) Observables!
-    - Listeners are on specific Actions
-    - Listeners are called with both current and previous values (convenience borrowed from Angular $watch/Object.Observe)
+- Mental model similar to [Redux](https://github.com/reactjs/redux), with several improvements over Redux:
+  - Store is decoupled from emitter
+  - Emitters are reactive; in fact, they use [Rx](https://github.com/Reactive-Extensions/RxJS) Observables!
+  - Listeners are on specific Actions
+  - Listeners are called with both current and previous values (convenience borrowed from Angular $watch/Object.Observe)
 
 ## Conceptual Overview
 
 1. Create a Tdux `Emitter` with a set of supported `Action`s
-2. Register reducers on it (a "reducer" is a mapping from a given `Action` to its side effects)
-3. Components in your app can `dispatch` `Action`s on your emitter
+2. Register reducers on the emitter (a "reducer" is a mapping from a given `Action` to its side effects)
+3. Components in your app `dispatch` `Action`s on your emitter
 4. `Actions` first trigger side-effects (via their respective reducers), then trigger any callbacks listening on that `Action`
 
 ## Installation
@@ -42,8 +41,8 @@ const store: { [id: number]: boolean } = {}
 
 // enumerate actions
 type Actions = {
+  INCREMENT_COUNTER: number
   OPEN_MODAL: boolean
-  CLOSE_MODAL: boolean
 }
 
 // define Tdux Emitter
@@ -51,7 +50,7 @@ class App extends Emitter<Actions> { }
 
 // create bus and register reducers
 const app = new App({
-  CLOSE_MODAL: ({ id, value }) => {
+  INCREMENT_COUNTER: ({ id, value }) => {
     const previousValue = store[id]
     store[id] = value
     return previousValue
@@ -60,21 +59,21 @@ const app = new App({
     const previousValue = store[id]
     store[id] = value
     return previousValue
-  }
+  } // <- Compile time error unless both of these keys are defined
 })
 
 // trigger an action
-app.emit('OPEN_MODAL', { id: 123, value: true })
+app.emit('OPEN_MODAL', { id: 123, value: true }) // <- Compile time error unless id and value are set, and are of the right types
 
-// listen on an action
-app.on('OPEN_MODAL')
+// listen on an action (basic)
+app.on('OPEN_MODAL') // <- Compile time error if this event does not exist
    .subscribe(_ => _.value)
 
-// listen (advanced)
-app.on('CLOSE_MODAL')
+// listen on an action (advanced)
+app.on('INCREMENT_COUNTER')
    .filter(_ => _.id === 42)
    .debounce()
-   .subscribe(_ => console.log('modal closed!', _.value, _.previousValue))
+   .subscribe(_ => console.log(`Counter incremented from ${_.previousValue} to ${_.value}!`))
 ```
 
 ## Tests
