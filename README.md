@@ -1,8 +1,8 @@
-# rxm [![Build Status][build]](https://circleci.com/gh/bcherny/rxm) [![npm]](https://www.npmjs.com/package/rxm) [![mit]](https://opensource.org/licenses/MIT)
+# tdux [![Build Status][build]](https://circleci.com/gh/bcherny/tdux) [![npm]](https://www.npmjs.com/package/tdux) [![mit]](https://opensource.org/licenses/MIT)
 
-[build]: https://img.shields.io/circleci/project/bcherny/rxm.svg?branch=master&style=flat-square
-[npm]: https://img.shields.io/npm/v/rxm.svg?style=flat-square
-[mit]: https://img.shields.io/npm/l/rxm.svg?style=flat-square
+[build]: https://img.shields.io/circleci/project/bcherny/tdux.svg?branch=master&style=flat-square
+[npm]: https://img.shields.io/npm/v/tdux.svg?style=flat-square
+[mit]: https://img.shields.io/npm/l/tdux.svg?style=flat-square
 
 > Better, Type Safe Redux.
 
@@ -26,13 +26,13 @@
 ## Installation
 
 ```sh
-npm install rxm --save
+npm install tdux --save
 ```
 
 ## Usage
 
 ```ts
-import { ReactiveBus } from 'rxm'
+import { ReactiveBus } from 'tdux'
 
 // mock store
 const store: { [id: number]: boolean } = {}

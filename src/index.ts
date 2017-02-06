@@ -1,4 +1,4 @@
-import { Subject } from 'rx'
+import { Disposable, Observable, Subject } from 'rx'
 
 export interface ShouldAction<T> {
 
@@ -22,12 +22,12 @@ export interface DidAction<T> extends ShouldAction<T> {
 }
 
 interface State<Actions> {
-  dids: Map<keyof Actions, Rx.Observable<DidAction<any>>>
-  shoulds: Map<keyof Actions, Rx.Observable<ShouldAction<any>>>
-  subscriptions: Map<keyof Actions, Rx.Disposable>
+  dids: Map<keyof Actions, Observable<DidAction<any>>>
+  shoulds: Map<keyof Actions, Observable<ShouldAction<any>>>
+  subscriptions: Map<keyof Actions, Disposable>
 }
 
-export abstract class ReactiveBus<Actions> {
+export abstract class Tdux<Actions> {
 
   private state: State<Actions> = {
     dids: new Map,
@@ -45,9 +45,9 @@ export abstract class ReactiveBus<Actions> {
   }
 
   /**
-   * Emit an action
+   * Dispatch an action
    */
-  emit<T extends keyof Actions>(type: T, data: ShouldAction<Actions[T]>) {
+  dispatch<T extends keyof Actions>(type: T, data: ShouldAction<Actions[T]>) {
     if (!this.isActionRegistered(type)) {
       throw Error(`You must define a reducer for action "${type}" before you call #emit on it.`)
     }
@@ -119,31 +119,3 @@ export abstract class ReactiveBus<Actions> {
     return this.state.dids.has(type)
   }
 }
-
-
-////// test
-
-
-type Actions = {
-  SHOULD_OPEN_MODAL: boolean
-  SHOULD_CLOSE_MODAL: boolean
-}
-
-const store: { [id: number]: boolean } = {}
-
-class App extends ReactiveBus<Actions> { }
-const app = new App({
-  SHOULD_CLOSE_MODAL: ({ id, value }) => {
-    const previousValue = store[id]
-    store[id] = value
-    return previousValue
-  },
-  SHOULD_OPEN_MODAL: ({ id, value }) => {
-    const previousValue = store[id]
-    store[id] = value
-    return previousValue
-  }
-})
-
-app.emit('SHOULD_OPEN_MODAL', { id: 123, value: true })
-app.on('SHOULD_OPEN_MODAL').subscribe(_ => _.value)

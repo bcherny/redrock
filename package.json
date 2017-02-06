@@ -1,8 +1,9 @@
 {
-  "name": "rxm",
+  "name": "tdux",
   "version": "0.0.1",
   "description": "Better, Type Safe Redux.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -10,26 +11,30 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/bcherny/rxm.git"
+    "url": "git+ssh://git@github.com/bcherny/tdux.git"
   },
   "keywords": [
+    "react",
     "reactive",
+    "event",
     "message",
     "redux",
     "flux",
     "cqrs",
     "rx",
+    "rxjs",
     "did",
     "should",
+    "collection",
     "model",
     "better"
   ],
   "author": "Boris Cherny <boris@performancejs.com> (http://performancejs.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bcherny/rxm/issues"
+    "url": "https://github.com/bcherny/tdux/issues"
   },
-  "homepage": "https://github.com/bcherny/rxm#readme",
+  "homepage": "https://github.com/bcherny/tdux#readme",
   "devDependencies": {
     "@types/node": "^7.0.5",
     "tslint": "^4.4.2",
