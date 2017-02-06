@@ -1,6 +1,6 @@
 import { Subject } from 'rx'
 
-export interface ShouldEvent<T> {
+export interface ShouldAction<T> {
 
   /**
    * Entity id that action should be applied to
@@ -13,7 +13,7 @@ export interface ShouldEvent<T> {
   value: T
 }
 
-export interface DidEvent<T> extends ShouldEvent<T> {
+export interface DidAction<T> extends ShouldAction<T> {
 
   /**
    * Previous value
@@ -21,23 +21,23 @@ export interface DidEvent<T> extends ShouldEvent<T> {
   previousValue: T
 }
 
-interface State<Events> {
-  dids: Map<keyof Events, Rx.Observable<DidEvent<any>>>
-  shoulds: Map<keyof Events, Rx.Observable<ShouldEvent<any>>>
-  subscriptions: Map<keyof Events, Rx.Disposable>
+interface State<Actions> {
+  dids: Map<keyof Actions, Rx.Observable<DidAction<any>>>
+  shoulds: Map<keyof Actions, Rx.Observable<ShouldAction<any>>>
+  subscriptions: Map<keyof Actions, Rx.Disposable>
 }
 
-export abstract class ReactiveBus<Events> {
+export abstract class ReactiveBus<Actions> {
 
-  private state: State<Events> = {
+  private state: State<Actions> = {
     dids: new Map,
     shoulds: new Map,
     subscriptions: new Map
   }
 
   constructor(reducers: Record<
-    keyof Events,
-    (data: ShouldEvent<Events[keyof Events]>) => Events[keyof Events]
+    keyof Actions,
+    (data: ShouldAction<Actions[keyof Actions]>) => Actions[keyof Actions]
   >) {
     for (const type in reducers) {
       this.registerReducer(type, reducers[type])
@@ -45,11 +45,11 @@ export abstract class ReactiveBus<Events> {
   }
 
   /**
-   * Emit an event
+   * Emit an action
    */
-  emit<T extends keyof Events>(type: T, data: ShouldEvent<Events[T]>) {
-    if (!this.isEventRegistered(type)) {
-      throw Error(`You must define a reducer for event "${type}" before you call #emit on it.`)
+  emit<T extends keyof Actions>(type: T, data: ShouldAction<Actions[T]>) {
+    if (!this.isActionRegistered(type)) {
+      throw Error(`You must define a reducer for action "${type}" before you call #emit on it.`)
     }
     this.getShould(type)!.onNext(data)
 
@@ -57,11 +57,11 @@ export abstract class ReactiveBus<Events> {
   }
 
   /**
-   * Respond to an event (fired after app state has been mutated)
+   * Respond to an action (fired after app state has been mutated)
    */
-  on<T extends keyof Events>(type: T) {
-    if (!this.isEventRegistered(type)) {
-      throw Error(`You must define a reducer for event "${type}" before you call #on on it.`)
+  on<T extends keyof Actions>(type: T) {
+    if (!this.isActionRegistered(type)) {
+      throw Error(`You must define a reducer for action "${type}" before you call #on on it.`)
     }
     return this.getDid(type)!
   }
@@ -74,15 +74,15 @@ export abstract class ReactiveBus<Events> {
   ///////////////////// privates /////////////////////
 
   /**
-   * Mutate app state in response to an event.
+   * Mutate app state in response to an action.
    *
-   * `fn` takes the `ShouldEvent`, and returns the previous value.
+   * `fn` takes the `ShouldAction`, and returns the previous value.
    */
-  private registerReducer<T extends keyof Events>(type: T, fn: (data: ShouldEvent<Events[T]>) => Events[T]) {
+  private registerReducer<T extends keyof Actions>(type: T, fn: (data: ShouldAction<Actions[T]>) => Actions[T]) {
 
     // create observables
-    if (this.isEventRegistered(type)) {
-      throw Error(`A reducer is already defined for event "${type}". You cannot define more than 1 reducer per event type.`)
+    if (this.isActionRegistered(type)) {
+      throw Error(`A reducer is already defined for action "${type}". You cannot define more than 1 reducer per action type.`)
     }
     this.createDid(type)
     this.createShould(type)
@@ -99,23 +99,23 @@ export abstract class ReactiveBus<Events> {
     return this
   }
 
-  private createDid<T extends keyof Events>(type: T) {
-    this.state.dids.set(type, new Subject<DidEvent<Events[T]>>())
+  private createDid<T extends keyof Actions>(type: T) {
+    this.state.dids.set(type, new Subject<DidAction<Actions[T]>>())
   }
 
-  private createShould<T extends keyof Events>(type: T) {
-    this.state.shoulds.set(type, new Subject<ShouldEvent<Events[T]>>())
+  private createShould<T extends keyof Actions>(type: T) {
+    this.state.shoulds.set(type, new Subject<ShouldAction<Actions[T]>>())
   }
 
-  private getDid<T extends keyof Events>(type: T) {
-    return this.state.dids.get(type) as Subject<DidEvent<Events[T]>>
+  private getDid<T extends keyof Actions>(type: T) {
+    return this.state.dids.get(type) as Subject<DidAction<Actions[T]>>
   }
 
-  private getShould<T extends keyof Events>(type: T) {
-    return this.state.shoulds.get(type) as Subject<ShouldEvent<Events[T]>>
+  private getShould<T extends keyof Actions>(type: T) {
+    return this.state.shoulds.get(type) as Subject<ShouldAction<Actions[T]>>
   }
 
-  private isEventRegistered<T extends keyof Events>(type: T) {
+  private isActionRegistered<T extends keyof Actions>(type: T) {
     return this.state.dids.has(type)
   }
 }
@@ -124,14 +124,14 @@ export abstract class ReactiveBus<Events> {
 ////// test
 
 
-type Events = {
+type Actions = {
   SHOULD_OPEN_MODAL: boolean
   SHOULD_CLOSE_MODAL: boolean
 }
 
 const store: { [id: number]: boolean } = {}
 
-class App extends ReactiveBus<Events> { }
+class App extends ReactiveBus<Actions> { }
 const app = new App({
   SHOULD_CLOSE_MODAL: ({ id, value }) => {
     const previousValue = store[id]
