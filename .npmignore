@@ -1,0 +1,4 @@
+.DS_Store
+circle.yml
+node_modules/
+test/
