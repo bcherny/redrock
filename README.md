@@ -36,19 +36,19 @@ npm install tdux --save
 ```ts
 import { Emitter } from 'tdux'
 
-// mock store
+// Mock store
 const store: { [id: number]: boolean } = {}
 
-// enumerate actions
+// Enumerate actions
 type Actions = {
   INCREMENT_COUNTER: number
   OPEN_MODAL: boolean
 }
 
-// define Tdux Emitter
+// Define Tdux Emitter
 class App extends Emitter<Actions> { }
 
-// create bus and register reducers
+// Create bus and register reducers (throws a compile time error unless both of these keys are defined, and return values of the right types)
 const app = new App({
   INCREMENT_COUNTER: ({ id, value }) => {
     const previousValue = store[id]
@@ -59,17 +59,17 @@ const app = new App({
     const previousValue = store[id]
     store[id] = value
     return previousValue
-  } // <- Compile time error unless both of these keys are defined
+  }
 })
 
-// trigger an action
-app.emit('OPEN_MODAL', { id: 123, value: true }) // <- Compile time error unless id and value are set, and are of the right types
+// Trigger an action (throws a compile time error unless id and value are set, and are of the right types)
+app.emit('OPEN_MODAL', { id: 123, value: true })
 
-// listen on an action (basic)
-app.on('OPEN_MODAL') // <- Compile time error if this event does not exist
+// Listen on an action (basic) (throws a compile time error if this event does not exist)
+app.on('OPEN_MODAL')
    .subscribe(_ => _.value)
 
-// listen on an action (advanced)
+// Listen on an action (advanced)
 app.on('INCREMENT_COUNTER')
    .filter(_ => _.id === 42)
    .debounce()
