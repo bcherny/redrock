@@ -1,4 +1,4 @@
-import { Tdux } from '../src'
+import { Emitter } from '../src'
 
 type Actions = {
   SHOULD_OPEN_MODAL: boolean

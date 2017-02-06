@@ -27,7 +27,7 @@ interface State<Actions> {
   subscriptions: Map<keyof Actions, Disposable>
 }
 
-export abstract class Tdux<Actions> {
+export abstract class Emitter<Actions> {
 
   private state: State<Actions> = {
     dids: new Map,

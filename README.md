@@ -19,9 +19,12 @@
     - Listeners are on specific Actions
     - Listeners are called with both current and previous values (convenience borrowed from Angular $watch/Object.Observe)
 
-## Overview
+## Conceptual Overview
 
-
+1. Create a Tdux `Emitter` with a set of supported `Action`s
+2. Register reducers on it (a "reducer" is a mapping from a given `Action` to its side effects)
+3. Components in your app can `dispatch` `Action`s on your emitter
+4. `Actions` first trigger side-effects (via their respective reducers), then trigger any callbacks listening on that `Action`
 
 ## Installation
 
@@ -32,7 +35,7 @@ npm install tdux --save
 ## Usage
 
 ```ts
-import { ReactiveBus } from 'tdux'
+import { Emitter } from 'tdux'
 
 // mock store
 const store: { [id: number]: boolean } = {}
@@ -43,8 +46,8 @@ type Actions = {
   CLOSE_MODAL: boolean
 }
 
-// define RXS bus
-class App extends ReactiveBus<Actions> { }
+// define Tdux Emitter
+class App extends Emitter<Actions> { }
 
 // create bus and register reducers
 const app = new App({
@@ -64,7 +67,14 @@ const app = new App({
 app.emit('OPEN_MODAL', { id: 123, value: true })
 
 // listen on an action
-app.on('OPEN_MODAL').subscribe(_ => _.value)
+app.on('OPEN_MODAL')
+   .subscribe(_ => _.value)
+
+// listen (advanced)
+app.on('CLOSE_MODAL')
+   .filter(_ => _.id === 42)
+   .debounce()
+   .subscribe(_ => console.log('modal closed!', _.value, _.previousValue))
 ```
 
 ## Tests
