@@ -1,5 +1,5 @@
 import test from 'ava'
-import { Emitter } from '../src'
+import { Emitter } from './'
 
 type Actions = {
   SHOULD_OPEN_MODAL: boolean
