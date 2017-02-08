@@ -29,7 +29,7 @@ interface State<Actions> {
 
 export abstract class Emitter<Actions> {
 
-  private state: State<Actions> = {
+  private emitterState: State<Actions> = {
     dids: new Map,
     shoulds: new Map,
     subscriptions: new Map
@@ -67,7 +67,7 @@ export abstract class Emitter<Actions> {
   }
 
   destroy() {
-    this.state.subscriptions.forEach(_ => _.unsubscribe())
+    this.emitterState.subscriptions.forEach(_ => _.unsubscribe())
   }
 
 
@@ -100,22 +100,22 @@ export abstract class Emitter<Actions> {
   }
 
   private createDid<T extends keyof Actions>(type: T) {
-    this.state.dids.set(type, new Subject<DidAction<Actions[T]>>())
+    this.emitterState.dids.set(type, new Subject<DidAction<Actions[T]>>())
   }
 
   private createShould<T extends keyof Actions>(type: T) {
-    this.state.shoulds.set(type, new Subject<ShouldAction<Actions[T]>>())
+    this.emitterState.shoulds.set(type, new Subject<ShouldAction<Actions[T]>>())
   }
 
   private getDid<T extends keyof Actions>(type: T) {
-    return this.state.dids.get(type) as Subject<DidAction<Actions[T]>>
+    return this.emitterState.dids.get(type) as Subject<DidAction<Actions[T]>>
   }
 
   private getShould<T extends keyof Actions>(type: T) {
-    return this.state.shoulds.get(type) as Subject<ShouldAction<Actions[T]>>
+    return this.emitterState.shoulds.get(type) as Subject<ShouldAction<Actions[T]>>
   }
 
   private isActionRegistered<T extends keyof Actions>(type: T) {
-    return this.state.dids.has(type)
+    return this.emitterState.dids.has(type)
   }
 }

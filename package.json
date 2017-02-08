@@ -1,6 +1,6 @@
 {
   "name": "tdux",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Better, Type Safe Redux.",
   "main": "./index.js",
   "typings": "./index.d.ts",
