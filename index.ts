@@ -1,11 +1,11 @@
 import { Observable, Subject, Subscription } from 'rxjs'
 
-export interface ShouldAction<T> {
+export interface ShouldAction<T, IDType> {
 
   /**
    * Entity id that action should be applied to
    */
-  id: number
+  id: IDType
 
   /**
    * New value
@@ -13,7 +13,7 @@ export interface ShouldAction<T> {
   value: T
 }
 
-export interface DidAction<T> extends ShouldAction<T> {
+export interface DidAction<T, IDType> extends ShouldAction<T, IDType> {
 
   /**
    * Previous value
@@ -21,24 +21,26 @@ export interface DidAction<T> extends ShouldAction<T> {
   previousValue: T
 }
 
-interface State<Actions> {
-  dids: Map<keyof Actions, Observable<DidAction<any>>>
-  shoulds: Map<keyof Actions, Observable<ShouldAction<any>>>
+interface State<Actions, IDType> {
+  dids: Map<keyof Actions, Observable<DidAction<any, IDType>>>
+  shoulds: Map<keyof Actions, Observable<ShouldAction<any, IDType>>>
   subscriptions: Map<keyof Actions, Subscription>
 }
 
-export abstract class Emitter<Actions> {
+export type Reducers<Actions, IDType> = Record<
+  keyof Actions,
+  (data: ShouldAction<Actions[keyof Actions], IDType>) => Actions[keyof Actions]
+>
 
-  private emitterState: State<Actions> = {
+export abstract class Emitter<Actions, IDType> {
+
+  private emitterState: State<Actions, IDType> = {
     dids: new Map,
     shoulds: new Map,
     subscriptions: new Map
   }
 
-  constructor(reducers: Record<
-    keyof Actions,
-    (data: ShouldAction<Actions[keyof Actions]>) => Actions[keyof Actions]
-  >) {
+  constructor(reducers: Reducers<Actions, IDType>) {
     for (const type in reducers) {
       this.registerReducer(type, reducers[type])
     }
@@ -47,7 +49,7 @@ export abstract class Emitter<Actions> {
   /**
    * Dispatch an action
    */
-  dispatch<T extends keyof Actions>(type: T, data: ShouldAction<Actions[T]>) {
+  dispatch<T extends keyof Actions>(type: T, data: ShouldAction<Actions[T], IDType>) {
     if (!this.isActionRegistered(type)) {
       throw Error(`You must define a reducer for action "${type}" before you call #emit on it.`)
     }
@@ -78,7 +80,7 @@ export abstract class Emitter<Actions> {
    *
    * `fn` takes the `ShouldAction`, and returns the previous value.
    */
-  private registerReducer<T extends keyof Actions>(type: T, fn: (data: ShouldAction<Actions[T]>) => Actions[T]) {
+  private registerReducer<T extends keyof Actions>(type: T, fn: (data: ShouldAction<Actions[T], IDType>) => Actions[T]) {
 
     // create observables
     if (this.isActionRegistered(type)) {
@@ -100,19 +102,19 @@ export abstract class Emitter<Actions> {
   }
 
   private createDid<T extends keyof Actions>(type: T) {
-    this.emitterState.dids.set(type, new Subject<DidAction<Actions[T]>>())
+    this.emitterState.dids.set(type, new Subject<DidAction<Actions[T], IDType>>())
   }
 
   private createShould<T extends keyof Actions>(type: T) {
-    this.emitterState.shoulds.set(type, new Subject<ShouldAction<Actions[T]>>())
+    this.emitterState.shoulds.set(type, new Subject<ShouldAction<Actions[T], IDType>>())
   }
 
   private getDid<T extends keyof Actions>(type: T) {
-    return this.emitterState.dids.get(type) as Subject<DidAction<Actions[T]>>
+    return this.emitterState.dids.get(type) as Subject<DidAction<Actions[T], IDType>>
   }
 
   private getShould<T extends keyof Actions>(type: T) {
-    return this.emitterState.shoulds.get(type) as Subject<ShouldAction<Actions[T]>>
+    return this.emitterState.shoulds.get(type) as Subject<ShouldAction<Actions[T], IDType>>
   }
 
   private isActionRegistered<T extends keyof Actions>(type: T) {

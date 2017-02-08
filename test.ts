@@ -10,7 +10,7 @@ const store: { [id: number]: boolean } = {
   123: false
 }
 
-class App extends Emitter<Actions> { }
+class App extends Emitter<Actions, number> { }
 const app = new App({
   SHOULD_CLOSE_MODAL: ({ id, value }) => {
     const previousValue = store[id]
