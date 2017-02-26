@@ -42,7 +42,9 @@ export abstract class Emitter<Actions, IDType> {
 
   constructor(reducers: Reducers<Actions, IDType>) {
     for (const type in reducers) {
-      this.registerReducer(type, reducers[type])
+      if (reducers.hasOwnProperty(type)) {
+        this.registerReducer(type, reducers[type])
+      }
     }
   }
 

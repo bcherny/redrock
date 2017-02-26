@@ -1,10 +1,10 @@
-# Redrock [![Build Status][build]](https://circleci.com/gh/bcherny/redrock) [![npm]](https://www.npmjs.com/package/redrock) [![mit]](https://opensource.org/licenses/MIT)
+<img alt="Redrock: Typesafe, reactive redux" src="https://raw.githubusercontent.com/bcherny/redrock/master/logo.png" width="500px" />
+
+[![Build Status][build]](https://circleci.com/gh/bcherny/redrock) [![npm]](https://www.npmjs.com/package/redrock) [![mit]](https://opensource.org/licenses/MIT)
 
 [build]: https://img.shields.io/circleci/project/bcherny/redrock.svg?branch=master&style=flat-square
 [npm]: https://img.shields.io/npm/v/redrock.svg?style=flat-square
 [mit]: https://img.shields.io/npm/l/redrock.svg?style=flat-square
-
-> A type safe, reactive redux
 
 ## Highlights
 
@@ -22,8 +22,8 @@
 
 1. Create a redrock `Emitter` with a set of supported `Action`s
 2. Register reducers on the emitter (a "reducer" is a mapping from a given `Action` to its side effects)
-3. Components in your app `dispatch` `Action`s on your emitter
-4. `Actions` first trigger side-effects (via their respective reducers), then trigger any callbacks listening on that `Action`
+3. Components in your app `emit()` `Action`s on your emitter
+4. `Actions` first trigger side-effects (via their respective reducers), then trigger any callbacks listening on that `Action` (callbacks are registered with `on()`)
 
 ## Installation
 
@@ -62,10 +62,7 @@ const app = new App({
   }
 })
 
-// Trigger an action (throws a compile time error unless id and value are set, and are of the right types)
-app.emit('OPEN_MODAL', { id: 123, value: true })
-
-// Listen on an action (basic) (throws a compile time error if this event does not exist)
+// Listen on an action (throws a compile time error if this event does not exist) (basic)
 app.on('OPEN_MODAL')
    .subscribe(_ => _.value)
 
@@ -74,6 +71,9 @@ app.on('INCREMENT_COUNTER')
    .filter(_ => _.id === 42)
    .debounce()
    .subscribe(_ => console.log(`Counter incremented from ${_.previousValue} to ${_.value}!`))
+
+// Trigger an action (throws a compile time error unless id and value are set, and are of the right types)
+app.emit('OPEN_MODAL', { id: 123, value: true })
 ```
 
 ## Tests

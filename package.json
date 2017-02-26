@@ -1,7 +1,7 @@
 {
   "name": "redrock",
-  "version": "0.0.5",
-  "description": "A type safe, reactive redux",
+  "version": "0.0.6",
+  "description": "Typesafe, reactive redux",
   "main": "./index.js",
   "typings": "./index.d.ts",
   "scripts": {
