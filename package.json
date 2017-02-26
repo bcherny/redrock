@@ -1,7 +1,7 @@
 {
-  "name": "tdux",
-  "version": "0.0.4",
-  "description": "Better, Type Safe Redux.",
+  "name": "redrock",
+  "version": "0.0.5",
+  "description": "A type safe, reactive redux",
   "main": "./index.js",
   "typings": "./index.d.ts",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/bcherny/tdux.git"
+    "url": "git+ssh://git@github.com/bcherny/redrock.git"
   },
   "keywords": [
     "react",
@@ -34,9 +34,9 @@
   "author": "Boris Cherny <boris@performancejs.com> (http://performancejs.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bcherny/tdux/issues"
+    "url": "https://github.com/bcherny/redrock/issues"
   },
-  "homepage": "https://github.com/bcherny/tdux#readme",
+  "homepage": "https://github.com/bcherny/redrock#readme",
   "devDependencies": {
     "@types/node": "^7.0.5",
     "ava": "^0.18.1",

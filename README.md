@@ -1,10 +1,10 @@
-# tdux [![Build Status][build]](https://circleci.com/gh/bcherny/tdux) [![npm]](https://www.npmjs.com/package/tdux) [![mit]](https://opensource.org/licenses/MIT)
+# Redrock [![Build Status][build]](https://circleci.com/gh/bcherny/redrock) [![npm]](https://www.npmjs.com/package/redrock) [![mit]](https://opensource.org/licenses/MIT)
 
-[build]: https://img.shields.io/circleci/project/bcherny/tdux.svg?branch=master&style=flat-square
-[npm]: https://img.shields.io/npm/v/tdux.svg?style=flat-square
-[mit]: https://img.shields.io/npm/l/tdux.svg?style=flat-square
+[build]: https://img.shields.io/circleci/project/bcherny/redrock.svg?branch=master&style=flat-square
+[npm]: https://img.shields.io/npm/v/redrock.svg?style=flat-square
+[mit]: https://img.shields.io/npm/l/redrock.svg?style=flat-square
 
-> Better, Type Safe Redux.
+> A type safe, reactive redux
 
 ## Highlights
 
@@ -20,7 +20,7 @@
 
 ## Conceptual Overview
 
-1. Create a Tdux `Emitter` with a set of supported `Action`s
+1. Create a redrock `Emitter` with a set of supported `Action`s
 2. Register reducers on the emitter (a "reducer" is a mapping from a given `Action` to its side effects)
 3. Components in your app `dispatch` `Action`s on your emitter
 4. `Actions` first trigger side-effects (via their respective reducers), then trigger any callbacks listening on that `Action`
@@ -28,13 +28,13 @@
 ## Installation
 
 ```sh
-npm install tdux --save
+npm install redrock --save
 ```
 
 ## Usage
 
 ```ts
-import { Emitter } from 'tdux'
+import { Emitter } from 'redrock'
 
 // Mock store
 const store: { [id: number]: boolean } = {}
@@ -45,7 +45,7 @@ type Actions = {
   OPEN_MODAL: boolean
 }
 
-// Define Tdux Emitter
+// Define redrock Emitter
 class App extends Emitter<Actions> { }
 
 // Create bus and register reducers (throws a compile time error unless both of these keys are defined, and return values of the right types)
